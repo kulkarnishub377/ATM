@@ -1,105 +1,87 @@
 import java.util.Scanner;
 
-class BusSeat {
-    private boolean isBooked;
-    
-    public BusSeat() {
-        isBooked = false;
-    }
-    
-    public boolean isBooked() {
-        return isBooked;
-    }
-    
-    public void bookSeat() {
-        isBooked = true;
-    }
-    
-    public void cancelBooking() {
-        isBooked = false;
-    }
-}
+/**
+ * Simple console ATM simulation with a single account balance.
+ * Supports: check balance, deposit, withdraw, and exit.
+ */
+public class Main {
+    private static final Scanner scanner = new Scanner(System.in);
+    private static double balance = 500.00; // initial balance
 
-class Main {
-    private static BusSeat[] seats = new BusSeat[10]; // Assuming there are 10 seats
-    private static Scanner scanner = new Scanner(System.in);
-    private static String customerName;
-    private static int availableSeats = 6; // Initially 6 available seats
-    
     public static void main(String[] args) {
-        System.out.println("==========================================");
-        System.out.println("     Welcome to the Bus Seat Booking     ");
-        System.out.println("             Website!                    ");
-        System.out.println("==========================================");
-        
-        for (int i = 0; i < seats.length; i++) {
-            seats[i] = new BusSeat();
-        }
-        
-        while (true) {
-            enterCustomerName();
-            bookSeats();
-            
-            System.out.print("Do you want to continue booking? (yes/no): ");
-            String continueBooking = scanner.next().toLowerCase();
-            if (!continueBooking.equals("yes")) {
-                System.out.println("==========================================");
-                System.out.println("   Thank you for using the Bus Seat      ");
-                System.out.println("          Booking Website!                ");
-                System.out.println("==========================================");
-                break;
+        System.out.println("=================================");
+        System.out.println("         Simple ATM System       ");
+        System.out.println("=================================");
+
+        boolean running = true;
+        while (running) {
+            printMenu();
+            int choice = readInt("Choose an option: ");
+            switch (choice) {
+                case 1 -> showBalance();
+                case 2 -> deposit();
+                case 3 -> withdraw();
+                case 4 -> {
+                    System.out.println("Thank you for using the ATM. Goodbye!");
+                    running = false;
+                }
+                default -> System.out.println("Invalid choice. Please try again.");
             }
+            System.out.println();
         }
-        
         scanner.close();
     }
-    
-    private static void enterCustomerName() {
-        System.out.print("Please enter your name: ");
-        scanner.nextLine(); // Consume the newline left in the buffer
-        customerName = scanner.nextLine();
-        System.out.println("\nHello, " + customerName + "! Let's start booking your seats.");
+
+    private static void printMenu() {
+        System.out.println("1. Check Balance");
+        System.out.println("2. Deposit");
+        System.out.println("3. Withdraw");
+        System.out.println("4. Exit");
     }
-    
-    private static void bookSeats() {
-        while (true) {
-            System.out.println("\nAvailable seats: " + availableSeats);
-            
-            System.out.print("Enter the number of seats you want to book, or 0 to go back: ");
-            int numSeats = scanner.nextInt();
-            
-            if (numSeats == 0) {
-                System.out.println("Returning to main menu.");
-                break;
-            }
-            
-            if (numSeats < 0) {
-                System.out.println("Invalid number of seats. Please enter a positive number or 0 to go back.");
-                continue;
-            }
-            
-            if (numSeats > availableSeats) {
-                System.out.println("Insufficient seats available. There are only " + availableSeats + " seats available.");
-                continue;
-            }
-            
-            int seatsBooked = 0;
-            for (int i = 0; i < seats.length && seatsBooked < numSeats; i++) {
-                if (!seats[i].isBooked()) {
-                    seats[i].bookSeat();
-                    seatsBooked++;
-                    availableSeats--;
-                }
-            }
-            
-            if (seatsBooked > 0) {
-                System.out.println("Booking " + seatsBooked + " seats for " + customerName + ". Seats booked successfully.");
-            } else {
-                System.out.println("Sorry, all selected seats are already booked.");
-            }
-            
-            System.out.println("Returning to main menu.");
-            break;
+
+    private static void showBalance() {
+        System.out.printf("Your current balance is: $%.2f%n", balance);
+    }
+
+    private static void deposit() {
+        double amount = readDouble("Enter amount to deposit: ");
+        if (amount <= 0) {
+            System.out.println("Deposit amount must be positive.");
+            return;
         }
+        balance += amount;
+        System.out.printf("Deposited $%.2f successfully. New balance: $%.2f%n", amount, balance);
+    }
+
+    private static void withdraw() {
+        double amount = readDouble("Enter amount to withdraw: ");
+        if (amount <= 0) {
+            System.out.println("Withdrawal amount must be positive.");
+            return;
+        }
+        if (amount > balance) {
+            System.out.println("Insufficient funds.");
+            return;
+        }
+        balance -= amount;
+        System.out.printf("Withdrew $%.2f successfully. New balance: $%.2f%n", amount, balance);
+    }
+
+    private static int readInt(String prompt) {
+        System.out.print(prompt);
+        while (!scanner.hasNextInt()) {
+            System.out.print("Please enter a valid number: ");
+            scanner.next();
+        }
+        return scanner.nextInt();
+    }
+
+    private static double readDouble(String prompt) {
+        System.out.print(prompt);
+        while (!scanner.hasNextDouble()) {
+            System.out.print("Please enter a valid amount: ");
+            scanner.next();
+        }
+        return scanner.nextDouble();
     }
 }
